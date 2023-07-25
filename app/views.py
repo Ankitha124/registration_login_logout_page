@@ -69,4 +69,44 @@ def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('home'))
 
+@login_required
+def display_details(request):
+
+    username=request.session.get('username')
+
+    UO=User.objects.get(username=username)
+    PO=Profile.objects.get(username=UO)
+    d={'UO':UO,'PO':PO}
+
+    return render(request,'display_details.html',d)
+
+
+@login_required
+def change_password(request):
+    if request.method=='POST':
+        pw=request.POST['pw']
+        username=request.session['username']
+
+        UO=User.objects.get(username=username)
+        UO.set_password(pw)
+        UO.save()
+        return HttpResponse('<h1> password is changed </h1>')
+    return render(request,'change_password.html')
+
+def reset_password(request):
+    if request.method=='POST':
+        pw=request.POST['pw']
+        username=request.POST['username']
+        LUO=User.objects.filter(username=username)
+        if LUO:
+            UO=LUO[0]
+            UO.set_password(pw)
+            UO.save()
+            return HttpResponse('<h1> password reset is done </h1>')
+        else:
+            return HttpResponse('<h1> Invalid username </h1>')
+    return render(request,'reset_password.html')
+
+
+
     
